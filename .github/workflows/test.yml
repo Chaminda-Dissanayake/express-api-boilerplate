@@ -1,0 +1,34 @@
+name: Node.js Continuous Integration Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+    - name: Check out source code repository pipeline
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js environment operational matrices (${{ matrix.node-version }})
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Clean install workspace dependencies
+      run: npm ci
+
+    - name: Execute Jest integration regression assertions
+      run: npm test
+      env:
+        JWT_SECRET: github_actions_pipeline_testing_hash_token_key
+        NODE_ENV: test
